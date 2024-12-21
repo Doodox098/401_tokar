@@ -50,7 +50,7 @@ public class GeneticLibControllerTest : IClassFixture<WebApplicationFactory<API.
         args.MutationRate = 0.5;
         args.CrossoverRate = 0.8;
         args.PopulationSize = 100;
-
+        
         var content = new StringContent(
             JsonSerializer.Serialize(args), 
             Encoding.UTF8, 

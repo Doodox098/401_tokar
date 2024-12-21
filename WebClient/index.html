@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Эволюционный алгоритм</title>
+    <style name="tournament_table">
+        td.tt_td{
+            width: 50px; 
+            height:30px; 
+            border: solid 1px silver; 
+            text-align:center;
+        }
+    </style>
+    <style >
+    </style>
+</head>
+<body>
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <table width="100%" cellspacing="20" id="maket">
+        <tr> 
+            <!-- Input section -->
+            <td id="leftcol" >
+                <!-- Input text section -->
+                <div>Rounds:</div>
+                <input type="text" id="Rounds" value="10" autocomplete="off"/>
+                <div>Courts:</div>
+                <input type="text" id="Courts" value="10" autocomplete="off"/>
+                <div>Players:</div>
+                <input type="text" id="Players" value="10" autocomplete="off"/>
+                <div>MutationRate:</div>
+                <input type="text" id="MutationRate" value="0.5" autocomplete="off"/>
+                <div>CrossoverRate:</div>
+                <input type="text" id="CrossoverRate" value="0.8" autocomplete="off"/>
+                <div>PopulationSize:</div>
+                <input type="text" id="PopulationSize" value="100" autocomplete="off"/>
+                
+            </td>
+            <td valign="top" id="Results">
+                <!-- Best Table -->
+                <table id="BestTable">
+                    
+                </table>
+                <div id="BestRank"></div>
+            </td>
+        </tr>
+        <tr> 
+            <td>
+                <!-- Buttons line -->
+                <button type="submit" id="start">Start</button>
+                <button type="submit" id="pause" disabled>Pause</button>
+                <button type="submit" id="stop" disabled>Stop </button>
+            </td>
+        </tr>
+   </table>
+   <!-- <script src="main.js"></script> -->
+   <script type="text/javascript">
+        function BuildTable(table) {
+            var new_tbl = document.getElementById("BestTable")
+            new_tbl.style.borderCollapse = 'collapse';
+            new_tbl.innerHTML = ""
+            // Table.Columns.Clear();
+            // Table.Columns.Add(new DataGridTextColumn
+            // {
+            //     Header = "Тур",
+            //     Binding = new Binding("Round")
+            // });
+
+            // for (int i = 1; i <= numberOfCourts; i++)
+            // {
+            //     Table.Columns.Add(new DataGridTextColumn
+            //     {
+            //         Header = $"Площадка {i}",
+            //         Binding = new Binding($"CourtMatches[{i}]")
+            //     });
+            // }
+            
+
+            full_table = Array(table.length)
+
+            const tr = new_tbl.insertRow();
+            const td = tr.insertCell();
+            
+            td.style.border = '1px solid black';
+            td.style.width = '30px'
+            
+            var num_courts = 0
+            for (let i = 0; i < table.length; i++) {
+                const td = tr.insertCell();
+                td.appendChild(document.createTextNode(i + 1));
+                column = table[i.toString()]
+                column_idx = Object.keys(column)
+                num_courts = Math.max(num_courts, Math.max(...column_idx.map(Number)))
+                td.style.border = '1px solid black';
+                td.style.width = '30px'
+            }
+            num_courts++
+            for (let i = 0; i < num_courts; i++) {
+                const tr = new_tbl.insertRow();
+                const td = tr.insertCell();
+                td.style.border = '1px solid black';
+                td.style.width = '30px'
+                td.appendChild(document.createTextNode(i + 1));
+                for (let j = 0; j < table.length; j++) {
+                    column = table[i.toString()]
+                    column_idx = Object.keys(column)
+                    const td = tr.insertCell();
+                    if (column_idx.includes(j.toString())) {
+                        var value = table[i.toString()][j.toString()]
+                        td.appendChild(document.createTextNode(value));
+                    }
+                    
+                    td.style.border = '1px solid black';
+                    td.style.width = '30px'
+                }
+            }
+        }
+        let id = null
+        const Status = {
+            running: 0,
+            paused: 1,
+            stopped: 2,
+        };
+        var status = Status.stopped
+        const pause_btn = document.getElementById("pause")
+        pause_btn.addEventListener("click", () => {
+            status = Status.paused
+            stop_btn.disabled = false
+            pause_btn.disabled = true
+        })
+        const stop_btn = document.getElementById("stop")
+        stop_btn.addEventListener("click", async () => {
+            status = Status.stopped
+            await fetch('http://localhost:5271/experiments/' + id, {
+                    method: 'DELETE', 
+                    body: "",
+                    headers: { "Content-type": "application/json; charset=UTF-8" }
+            })
+            stop_btn.disabled = true
+            pause_btn.disabled = true
+        })
+        const start_btn = document.getElementById("start")
+        start_btn.onclick = async () => {
+            if (status == Status.stopped) {
+                let s = "{"
+                let lcol = document.getElementById("leftcol")
+                var children = lcol.children;
+                let first = true
+                for (var i = 0; i < children.length; i++) {
+                    child = children[i]
+                    if (child.type === "text") {
+                        if (first) {
+                            first = false
+                        } else {
+                            s += ","
+                        }
+                        s += "\"" + child.id + "\":" + child.value
+                    }
+                }
+                s += "}"
+                console.log(s)
+                id = await fetch('http://localhost:5271/experiments/', {
+                    method: 'PUT', 
+                    body: s,
+                    headers: { "Content-type": "application/json; charset=UTF-8" }
+                })
+                .then(response => response.json())
+                console.log(id)
+            }
+            start_btn.disabled = true
+            stop_btn.disabled = false
+            pause_btn.disabled = false
+            status = Status.running
+            async function RunEvolution() {
+                while (status == Status.running) {
+                    let response = await fetch('http://localhost:5271/experiments/' + id, {
+                        method: 'POST', 
+                        body: "",
+                        headers: { "Content-type": "application/json; charset=UTF-8" }
+                    })
+                    .then(response => response.json())
+                    console.log(response)
+                    BuildTable(response.table)
+                    document.getElementById("BestRank").innerText = response.rank
+                }
+                start_btn.disabled = false
+            }
+            
+            RunEvolution()  
+        }
+   </script>
+</body>
+
+

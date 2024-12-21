@@ -143,7 +143,7 @@ public class GPDataBase
         var BestTable = Evolution.BestTable();
         var BestRank = Evolution.BestRank();
         if (!SaveEvolution(id, Evolution)) throw new Exception("Internal Error");
-        return new EvolutionResult(BestTable, BestRank);
+        return new EvolutionResult(BestTable, $"{BestRank.Item1}:{BestRank.Item2}");
     }
     public static bool DeleteEvolution(string id) {
         Console.WriteLine($"DeleteEvolution(id={id})");

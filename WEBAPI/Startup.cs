@@ -44,7 +44,7 @@ namespace API
 
             // app.UseAuthorization();
 
-            app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod());
+            app.UseCors(b => b.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.UseEndpoints(endpoints =>
             {
