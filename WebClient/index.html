@@ -56,7 +56,7 @@
    <!-- <script src="main.js"></script> -->
    <script type="text/javascript">
         function BuildTable(table) {
-            var new_tbl = document.getElementById("BestTable")
+            let new_tbl = document.getElementById("BestTable")
             new_tbl.style.borderCollapse = 'collapse';
             new_tbl.innerHTML = ""
             // Table.Columns.Clear();
@@ -78,15 +78,15 @@
 
             full_table = Array(table.length)
 
-            const tr = new_tbl.insertRow();
-            const td = tr.insertCell();
+            let tr = new_tbl.insertRow();
+            let td = tr.insertCell();
             
             td.style.border = '1px solid black';
             td.style.width = '30px'
             
-            var num_courts = 0
+            let num_courts = 0
             for (let i = 0; i < table.length; i++) {
-                const td = tr.insertCell();
+                let td = tr.insertCell();
                 td.appendChild(document.createTextNode(i + 1));
                 column = table[i.toString()]
                 column_idx = Object.keys(column)
@@ -96,17 +96,17 @@
             }
             num_courts++
             for (let i = 0; i < num_courts; i++) {
-                const tr = new_tbl.insertRow();
-                const td = tr.insertCell();
+                let tr = new_tbl.insertRow();
+                let td = tr.insertCell();
                 td.style.border = '1px solid black';
                 td.style.width = '30px'
                 td.appendChild(document.createTextNode(i + 1));
                 for (let j = 0; j < table.length; j++) {
                     column = table[i.toString()]
                     column_idx = Object.keys(column)
-                    const td = tr.insertCell();
+                    let td = tr.insertCell();
                     if (column_idx.includes(j.toString())) {
-                        var value = table[i.toString()][j.toString()]
+                        let value = table[i.toString()][j.toString()]
                         td.appendChild(document.createTextNode(value));
                     }
                     
@@ -116,19 +116,19 @@
             }
         }
         let id = null
-        const Status = {
+        let Status = {
             running: 0,
             paused: 1,
             stopped: 2,
         };
-        var status = Status.stopped
-        const pause_btn = document.getElementById("pause")
+        let status = Status.stopped
+        let pause_btn = document.getElementById("pause")
         pause_btn.addEventListener("click", () => {
             status = Status.paused
             stop_btn.disabled = false
             pause_btn.disabled = true
         })
-        const stop_btn = document.getElementById("stop")
+        let stop_btn = document.getElementById("stop")
         stop_btn.addEventListener("click", async () => {
             status = Status.stopped
             await fetch('http://localhost:5271/experiments/' + id, {
@@ -139,14 +139,14 @@
             stop_btn.disabled = true
             pause_btn.disabled = true
         })
-        const start_btn = document.getElementById("start")
+        let start_btn = document.getElementById("start")
         start_btn.onclick = async () => {
             if (status == Status.stopped) {
                 let s = "{"
                 let lcol = document.getElementById("leftcol")
-                var children = lcol.children;
+                let children = lcol.children;
                 let first = true
-                for (var i = 0; i < children.length; i++) {
+                for (let i = 0; i < children.length; i++) {
                     child = children[i]
                     if (child.type === "text") {
                         if (first) {
